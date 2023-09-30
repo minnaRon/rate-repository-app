@@ -25,8 +25,15 @@ const AppBar = () => {
       <ScrollView horizontal>
         <AppBarTab text={'Repositories'} path={'/'} />
         { !authorized
-          ? <AppBarTab text={'Sign in'} path={'/signIn'} /> 
-          : <SignOutAppBarTab text={'Sign out'} /> 
+          ? <>
+              <AppBarTab text={'Sign in'} path={'/signIn'} /> 
+              <AppBarTab text={'Sign up'} path={'/signUp'} /> 
+            </>
+          : <> 
+              <AppBarTab text={'Create a review'} path={'/createReview'} />
+              <AppBarTab text={'My reviews'} path={'/myReviews'} />
+              <SignOutAppBarTab text={'Sign out'} />
+            </>
         }
       </ScrollView>
     </View>

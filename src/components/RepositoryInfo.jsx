@@ -1,4 +1,9 @@
 import { View, Image, StyleSheet } from 'react-native'
+import * as Linking from 'expo-linking';
+import {useParams} from 'react-router-dom'
+import {useRepository} from '../hooks/useRepositories'
+import useGithubUrl from '../hooks/useGithubUrl'
+import Pressable from './Pressable'
 import theme from '../theme'
 import Text from './Text';
 
@@ -38,10 +43,17 @@ const styles = StyleSheet.create({
   reviewItem: {
     flexGrow:0,
     alignItems:'center'  
-  }
+  },
+  logBox: {
+    padding: 20,
+    margin: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#f0f0f0',
+    backgroundColor: '#f9f9f9',
+  },
 });
 
-const ReviewItem = ({count, text}) => {
+const Figures = ({count, text}) => {
   const format = (number) => number >= 1000 ? `${(number/1000).toFixed(1)}k` : number
   return (
     <View style={styles.reviewItem}>
@@ -51,10 +63,28 @@ const ReviewItem = ({count, text}) => {
   )
 }
 
-const RepositoryItem = ({ item }) => {
-  const { fullName, description, language, stargazersCount, forksCount, ratingAverage, reviewCount, ownerAvatarUrl } = item
+const OpenInGithubButton = ({ id }) => {
+const { url } = useGithubUrl(id);
+
   return (
-    <View style={styles.container}>
+    <View>
+      <Pressable style={styles.logBox} onPress={() => Linking.openURL(url)} text={'Open in Github'} />
+    </View>
+  )
+}
+
+const RepositoryInfo = ({ item }) => {
+  const {id} = useParams()
+  const { repository } = useRepository({id}, 'repository');
+
+  item = repository ? repository : item
+
+  if (!item)  return null
+  
+  const { fullName, description, language, stargazersCount, forksCount, ratingAverage, reviewCount, ownerAvatarUrl } = item
+  
+  return (
+    <View style={styles.container} testID="repositoryItem">
       <View style={styles.intro}>
         <View style={styles.image}>
           <Image
@@ -63,19 +93,20 @@ const RepositoryItem = ({ item }) => {
           />
         </View>
         <View style={styles.image}>
-          <Text fontWeight={'bold'} fontSize={'subheading'}>{fullName}</Text>
+          <Text fontWeight={'bold'} fontSize={'subheading'} >{fullName}</Text>
           <Text style={{marginTop: 5, marginBottom: 5}}>{description}</Text>
           <Text style={styles.tag}>{language}</Text>
         </View>
       </View>
       <View style={styles.review}>
-        <ReviewItem count={stargazersCount} text={'Stars'} />
-        <ReviewItem count={forksCount} text={'Forks'} />
-        <ReviewItem count={reviewCount} text={'Reviews'} />
-        <ReviewItem count={ratingAverage} text={'Rating'} />
+        <Figures count={stargazersCount} text={'Stars'} />
+        <Figures count={forksCount} text={'Forks'} />
+        <Figures count={reviewCount} text={'Reviews'} />
+        <Figures count={ratingAverage} text={'Rating'} />
       </View>
+      {id ? <OpenInGithubButton id={id} /> : <Text></Text>}
     </View>
   )
 }
 
-export default RepositoryItem
+export default RepositoryInfo
